@@ -1,5 +1,21 @@
 # the main file for the program
 
+# Helper function to integer user input within a range of values.
+def get_int_input(min_val, max_val, input_message = "Input: "):
+    """Get user input as an integer within a (inclusive) range of values [min_val,max_val]. Prompts the user for input with input_message string.
+    Returns the inputted integer if possible."""
+
+    try:
+        user_input = int(input(input_message))
+        while (user_input < min_val) or (user_input > max_val):
+            user_input = int(input(("Invalid input. Please input an integer from " + str(min_val) + " to " + str(max_val) + ": ")))
+        return user_input
+    except ValueError:
+        print("Value Error: Input must be an integer.")
+        return get_int_input(min_val, max_val, input_message)
+    
+
+
 ### Investigator class - a helper class
 # meant to parallel the investigator sheet, defaults to 1920s era investigator
 # TODO: Consider making some of the existing functions into class methods
@@ -46,35 +62,6 @@ class Investigator:
         elif (self.age >= 20) and (self.age <=39):
             self.edu_improvement_roll()
         elif (self.age >= 40) and (self.age <= 49):
-            """ points_left = 5
-            print("Deduct" + points_left + "points from STR, CON, or DEX. You may split this deduction across these characteristics.")
-            while (points_left > 0):
-                deduct_choice = input("Choose a category (STR, CON, or DEX) to deduct from: ")
-                while ("str" not in deduct_choice.lower()) or ("con" not in deduct_choice.lower()) or ("dex" not in deduct_choice.lower()):
-                    deduct_choice = input("Invalid choice. Please enter one category ('STR', 'CON', or 'DEX') to deduct points from: ")
-                # Deduct from specified categories
-                if "str" in deduct_choice.lower():
-                    print("STR selected")
-                    points_to_deduct = input("Points to deduct from STR: ")
-                    while (not points_to_deduct.isdigit()) or (points_to_deduct < 0) or (points_to_deduct > points_left):
-                        points_to_deduct = input("Invalid value. Please input a value from 0 to " + points_left +": ")
-                    self.strength -= points_to_deduct
-                    points_left -= points_to_deduct
-                elif "con" in deduct_choice.lower():
-                    print("CON selected")
-                    points_to_deduct = input("Points to deduct from CON: ")
-                    while (not points_to_deduct.isdigit()) or (points_to_deduct < 0) or (points_to_deduct > points_left):
-                        points_to_deduct = input("Invalid value. Please input a value from 0 to " + points_left +": ")
-                    self.con -= points_to_deduct
-                    points_left -= points_to_deduct
-                elif "dex" in deduct_choice.lower():
-                    print("DEX selected")
-                    points_to_deduct = input("Points to deduct from DEX: ")
-                    while (not points_to_deduct.isdigit()) or (points_to_deduct < 0) or (points_to_deduct > points_left):
-                        points_to_deduct = input("Invalid value. Please input a value from 0 to " + points_left +": ")
-                    self.dex -= points_to_deduct
-                    points_left -= points_to_deduct
-                print("You have" + points_left + "points left to deduct.") """
             self.deduct_str_con_dex_by(5)
             self.app -= 5
             self.edu_improvement_roll()
@@ -107,24 +94,19 @@ class Investigator:
             self.edu_improvement_roll()
             self.edu_improvement_roll()
         else:
-            # If a player's investigators age is beyond the provided age range, the Lore Keeper (or Game Master) is responsible for choosing the appropriate modificationis to base stats
+            # If a player's investigators age is beyond the provided age range, the Lore Keeper (or Game Master) is responsible for choosing the appropriate modifications to base stats
             print("Age supplied is not within the range specified by the 7th Edition Call of Cthulhu Keeper Rule Book. Please discuss your investigator age with the Keeper for your campaign. They will inform you of what characteristics to modify based on your characters age.")
-            self.input("Eventually, you can use this tool to modify stats for additional, custom age ranges. This feature is not yet available. Press enter to continue.")
+            input("Eventually, you can use this tool to modify stats for additional, custom age ranges. This feature is not yet available. \nPress enter to continue.")
 
     # Helper function for Education improvement checks
     # TODO: fix the input integer issues
     def edu_improvement_roll(self):
         print("Make an improvement check for EDU")
-        improvement_roll = int(input("Roll a percentile dice and input the value: "))
-        #while (not improvement_roll.isdigit()) or (improvement_roll <= 0) or (improvement_roll > 100):
-        while (improvement_roll <= 0) or (improvement_roll > 100):
-            improvement_roll = int(input("Invalid value. Please input an integer from 1 to 100: "))
-
+        improvement_roll = get_int_input(1, 100, "Roll a percentile dice and input the value: ")
         if improvement_roll > self.edu:
             print("Successful EDU improvement check. Please roll a 1D10 to add to your EDU percentage points.")
-            edu_increase = int(input("Value rolled: "))
-            while (edu_increase <= 0) or (edu_increase > 100):
-                edu_increase = int(input("Invalid value. Please input a value from 1 to 10: "))
+            edu_increase = get_int_input(1, 10,"Value rolled: ")
+            
             # EDU cannot go above 99 points
             if (self.edu + edu_increase) > 99:
                 self.edu = 99
@@ -140,30 +122,27 @@ class Investigator:
         print("Deduct", points_left, "points from STR, CON, or DEX. You may split this deduction across these characteristics.")
         while (points_left > 0):
             deduct_choice = input("Choose a category (STR, CON, or DEX) to deduct from: ")
-            while ("str" not in deduct_choice.lower()) or ("con" not in deduct_choice.lower()) or ("dex" not in deduct_choice.lower()):
+            while ((deduct_choice.lower() != "str") and (deduct_choice.lower() != "con") and (deduct_choice.lower() != "dex")):
                 deduct_choice = input("Invalid choice. Please enter one category ('STR', 'CON', or 'DEX') to deduct points from: ")
             # Deduct from specified categories
-            if "str" in deduct_choice.lower():
+            if deduct_choice.lower() == 'str':
                 print("STR selected")
-                points_to_deduct = input("Points to deduct from STR: ")
-                while (not points_to_deduct.isdigit()) and ((int(points_to_deduct) < 0) or (int(points_to_deduct) > points_left)):
-                    points_to_deduct = input("Invalid value. Please input a value from 0 to", points_left,": ")
-                self.strength -= int(points_to_deduct)
-                points_left -= int(points_to_deduct)
-            elif "con" in deduct_choice.lower():
+                points_to_deduct = get_int_input(0, points_left, "Points to deduct from STR: ")
+                # points_to_deduct = input("Points to deduct from STR: ")
+                # while (not points_to_deduct.isdigit()) and ((int(points_to_deduct) < 0) or (int(points_to_deduct) > points_left)):
+                #     points_to_deduct = input("Invalid value. Please input a value from 0 to", points_left,": ")
+                self.strength -= points_to_deduct
+                points_left -= points_to_deduct
+            elif deduct_choice.lower() == 'con':
                 print("CON selected")
-                points_to_deduct = input("Points to deduct from CON: ")
-                while (not points_to_deduct.isdigit()) and ((int(points_to_deduct) < 0) or (int(points_to_deduct) > points_left)):
-                    points_to_deduct = input("Invalid value. Please input a value from 0 to ", points_left, ": ")
-                self.con -= int(points_to_deduct)
-                points_left -= int(points_to_deduct)
-            elif "dex" in deduct_choice.lower():
+                points_to_deduct = get_int_input(0, points_left,"Points to deduct from CON: ")
+                self.con -= points_to_deduct
+                points_left -= points_to_deduct
+            elif deduct_choice.lower() == 'dex':
                 print("DEX selected")
-                points_to_deduct = input("Points to deduct from DEX: ")
-                while (not points_to_deduct.isdigit()) and ((int(points_to_deduct) < 0) or (int(points_to_deduct) > points_left)):
-                    points_to_deduct = input("Invalid value. Please input a value from 0 to", points_left,": ")
-                self.dex -= int(points_to_deduct)
-                points_left -= int(points_to_deduct)
+                points_to_deduct = get_int_input(0, points_left,"Points to deduct from DEX: ")
+                self.dex -= points_to_deduct
+                points_left -= points_to_deduct
             print("You have", points_left, "points left to deduct.")
 
     def get_sanity_points(self):
@@ -246,7 +225,7 @@ class Investigator:
         elif (size_strength >= 285): # Add an additional +1 to build for each additional 80 points
             build = 4
             while (size_strength >= 365):
-                dice += 1
+                build += 1
                 size_strength -= 80
             return build
         else: 
@@ -270,7 +249,7 @@ class Investigator:
         self.modify_characteristics_by_age()
         
 
-    
+
 
 # Print the stats of the investigator generated. Takes an investigator class object
 def print_investigator_stats(investigator):
@@ -289,28 +268,24 @@ def print_investigator_stats(investigator):
     print("Luck: ", investigator.luck)
     print("Sanity: ", investigator.get_sanity_points())
 
-
     # print("Move Rate: ", investigator.get_move_rate())
     # print("Hit Points: ", investigator.get_hit_points())
     # print("Magic Points: ", investigator.get_magic_points())
 
     # print("Damage Bonus: " + investigator.get_damage_bonus())
     # print("Build: ", investigator.get_build())
-
     return
 
 # Generate the base characteristics for investigators (using user given dice rolls)
 def gen_base_stats_menu():
-    print("You have choosen to generate the characteristics for your investigator. This will lead you through the steps to create an investigator based on the 7th edition rules.")
-    print("Before begining please choose the method you would like to use to create your investigator.")
+    print("You have chosen to generate the characteristics for your investigator. This will lead you through the steps to create an investigator based on the 7th edition rules.")
+    print("Before beginning please choose the method you would like to use to create your investigator.")
     #print("After you make your characteristic rolls, you will have an option to select additional methods or house rules to create your character. This includes: options to scrap all base stat rolls and start over, modify low rolls, or adding an extra 1D10 percentage points to distribute among characteristics.") 
     # TODO: add option to let users select where to put rolled characteristics?
-    
     print("What method would you like to use to generate investigator characteristics?\n    1. Default\n    2. Point Buy Characteristics\n    3. Quick Fire Method")
     gen_method = input("Method: ")
     while (gen_method != 'q') and (gen_method != '1') and (gen_method != '2') and (gen_method != '3'):
         gen_method = input("Invalid choice. Please enter a number 1-3 to select the method or 'q' to quit:")
-
 
     if (gen_method == 'q'):
         input("Press enter to return to main menu")
@@ -334,6 +309,8 @@ def gen_base_stats_menu():
         print("Default method selected.")
         # get the rolled dice from the users
         # allow users to pick where they put each value (show the users their vals before they continue)
+        default_char_method(base_characteristics)
+
     elif (gen_method == '2'):
         point_buy_char()
     else:
@@ -344,28 +321,26 @@ def gen_base_stats_menu():
     
     # Age
     print("How old is your investigator?")
-    age_is_valid = False
-    input_age = input("Age: ")
-    while (age_is_valid):
-        if not input_age.isdigit():
-            input_age = input("Invalid age. Please enter age as an integer: ")
-        elif (int(input_age) <= 0) or (int(input_age) > 110):
-            input_age = input("Invalid age. Please enter a realistic age for a human (i.e. from 1 to 110): ")
-        else:
-            age_is_valid = True
+    # age_is_valid = False
+    # input_age = input("Age: ")
+    # while (age_is_valid):
+    #     if not input_age.isdigit():
+    #         input_age = input("Invalid age. Please enter age as an integer: ")
+    #     elif (int(input_age) <= 0) or (int(input_age) > 110):
+    #         input_age = input("Invalid age. Please enter a realistic age for a human (i.e. from 1 to 110): ")
+    #     else:
+    #         age_is_valid = True
+    # age_num = int(input_age)
+    age_num = get_int_input(1,110, "Age:")
 
-    age_num = int(input_age)
     if (1 <= age_num < 15) or (age_num >= 90):
-        print("You have choosen an age outside of the typical age range (15 to 89) for Call of Cthulhu. There are no specified modifications to characteristics for these ages in the rule book. Before you proceed, please discuss this choice with your Keeper. They will determine how you should proceed / modify characteristics.")
-        retry_choice = input("Would you like to input an age within the rulebook instead? (Y/N)")
-        while (retry_choice != "Y") and (retry_choice != "N"):
+        print("You have chosen an age outside of the typical age range (15 to 89) for Call of Cthulhu. There are no specified modifications to characteristics for these ages in the rule book. Before you proceed, please discuss this choice with your Keeper. They will determine how you should proceed / modify characteristics.")
+        retry_choice = input("Would you like to input an age within the specified range (15 to 89) instead? (Y/N)")
+        while (retry_choice.lower() != "y") and (retry_choice.lower() != "n"):
             retry_choice = input("Y/N: ")
-        
         if retry_choice.lower() == "y":
-            input_age = input("Character age: ")
-            while (not input_age.isdigit()) and (int(input_age) < 15) and (int(input_age) > 89):
-                input_age = input("Invalid age. Please enter an age from 15 to 89:")
-        age_num = int(input_age)
+            input_age = get_int_input(15, 89,"Investigator age: ")
+            age_num = input_age
 
     player_char.set_age(age_num)
     
@@ -388,19 +363,51 @@ def gen_base_stats_menu():
     input("Press enter to return to main menu")
     return
 
-# Returns an investigator w/ base stats....
+# Default method to generate characteristics. Gets user input and returns a dictionary for investigator base stats
+# Takes a dictionary and modifys that dictionary on return
+def default_char_method(base_characteristics):
+    print("Strength Characteristic")
+    str_roll = get_int_input(3, 18, "STR - Roll 3D6 to generate STR value: ")
+    base_characteristics["str"] = str_roll * 5
+
+    print("Constitution Characteristic")
+    con_roll = get_int_input(3, 18, "CON - Roll 3D6 to generate CON value: ")
+    base_characteristics["con"] = con_roll * 5
+
+    print("Dexterity Characteristic")
+    dex_roll = get_int_input(3, 18, "DEX - Roll 3D6 to generate DEX value: ")
+    base_characteristics["dex"] = dex_roll * 5
+
+    print("Appearance Characteristic")
+    app_roll = get_int_input(3, 18, "APP - Roll 3D6 to generate APP value: ")
+    base_characteristics["app"] = app_roll * 5
+
+    print("Appearance Characteristic")
+    pow_roll = get_int_input(3, 18, "POW - Roll 3D6 to generate POW value: ")
+    base_characteristics["pow"] = pow_roll * 5
+
+    print("Size Characteristic") # Recommended (total) minimum value: 40
+    siz_roll = 6 + get_int_input(2, 12, "SIZ - Roll 2D6 to generate SIZ value: ")
+    base_characteristics["siz"] = siz_roll * 5
+
+    print("Intelligence Characteristic") # Recommended minimum value: 40
+    int_roll = 6 + get_int_input(2, 12, "INT - Roll 2D6 to generate INT value: ")
+    base_characteristics["int"] = int_roll * 5
+
+    print("Education Characteristic") # Recommended minimum value: 40
+    edu_roll = 6 + get_int_input(2, 12, "EDU - Roll 2D6 to generate EDU value: ")
+    base_characteristics["edu"] = edu_roll * 5
+
+
+# Returns a dictionary for investigator base stats
 def point_buy_char():
     print("Point Buy Characteristics selected.")
     print("\nYou have 460 points to split among the characteristics as you desire, within the range of 15 to 90.")
     print("It is recommended that INT and SIZ be no lower than 40.")
-
-
-
     return
 
 def quick_fire_char():
     print("Quick fire method selected.")
-
     return
 
 # generate the half and fifth Characteristic values. This is used to determine the values for Hard and Extreme rolls
@@ -411,10 +418,6 @@ def gen_half_and_fifth():
     return
 
 def luck_roll():
-    # input_roll = input("Luck score - roll 3D6 and enter the resulting sum: ")
-    # while (not input_roll.isdigit()) and ((input_roll <= 0) or (input_roll > 18)):
-    #     input_roll = input("Invalid input. Please enter the sum of 3D6 to calculate the luck score:")
-    # return input_roll * 5
     try:
         input_roll = int(input("Luck score - roll 3D6 and enter the resulting sum: "))
         while ((input_roll < 3) or (input_roll > 18)):
@@ -425,7 +428,6 @@ def luck_roll():
         return luck_roll()
 
 # TODO: add a function to generate the skill points they have to spend based off their occupation
-
 
 # TODO later: add a feature to generate base characteristics using randomly generated rolls
 

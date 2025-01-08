@@ -31,13 +31,18 @@ class Investigator:
         self.name = investigator_name
         self.luck = luck
         self.age = age
-        self.modify_characteristics_by_age()
+        #self.modify_characteristics_by_age()
+
+    # return string representation of character sheet
+    def __str__(self):
+        investigator_str = f"Investigator Name: {self.name}\nAge: {self.age}\nSTR: {self.strength}\nCon: {self.con}\nSIZ: {self.siz}\nDEX: {self.dex}\nAPP: {self.app}\nINT: {self.intelligence}\nPOW: {self.power}\nEDU: {self.edu}\nLuck: {self.luck}\nSanity: {self.get_sanity_points()}\n"
+        investigator_str = investigator_str + f"Move Rate: {self.get_move_rate()}\nHit Points: {self.get_hit_points()}\nMagic Points: {self.get_magic_points()}\nDamage Bonus: {self.get_damage_bonus()}\nBuild: {self.get_build()}"
+        return investigator_str
 
     # Modify the base characteristics according to the age that has been set
     def modify_characteristics_by_age(self):
         if (self.age == None):
             # Don't modify characteristics if the new age is the same as the current age
-            #print("Invalid Age.")
             return
         elif (type(self.age) is not int):
             print("Warning: current age is not an integer. Characteristics will not be modified")
@@ -124,9 +129,6 @@ class Investigator:
             if deduct_choice.lower() == 'str':
                 print("STR selected")
                 points_to_deduct = get_int_input(0, points_left, "Points to deduct from STR: ")
-                # points_to_deduct = input("Points to deduct from STR: ")
-                # while (not points_to_deduct.isdigit()) and ((int(points_to_deduct) < 0) or (int(points_to_deduct) > points_left)):
-                #     points_to_deduct = input("Invalid value. Please input a value from 0 to", points_left,": ")
                 self.strength -= points_to_deduct
                 points_left -= points_to_deduct
             elif deduct_choice.lower() == 'con':
@@ -162,8 +164,7 @@ class Investigator:
         # Modify movement based on Age
         if self.age < 40:
             return mov
-        elif self.age >= 80: 
-            # The 7th edition Keeper Rule Book does not include info on how to modify movement if age is in the 90s or older. This tool will use the same MOV deduction for those ages that is deducted if age is in the 80s.
+        elif 80 <= self.age <=90:
             mov -= 5
         elif self.age >= 70:
             mov -= 4
@@ -173,7 +174,8 @@ class Investigator:
             mov -= 2
         else:
             mov -= 1
-        
+        # The 7th edition Keeper Rule Book does not include info on how to modify movement for ages beyond 40s to 80s.
+
         return mov
 
     # Damage bonus is returned as a string
@@ -233,15 +235,12 @@ class Investigator:
         self.luck = x
 
     def set_age(self, a):
-        # if (self.age != None) or (self.age.isdigit()):
-        #     print("Warning: the current characteristic values have already been modified by age. Are you sure you would like to change this age and modify these values again?")
-        #     change_confirmation = input("Type Y to confirm")
-        #     if change_confirmation == "Y":
-        #         print("Modifying age and current characteristics")
-        #     else:
-        #         print("Modification to age and current characteristics canceled.")
-        #         return
+        """ Sets the Investigator's age to a value 'a' and modifies the characteristics by age."""
         self.age = a
         self.modify_characteristics_by_age()
+
+    # TODO: add a to_dict function to help with testing the investigator class methods
         
 
+if __name__ == '__main__':
+    pass

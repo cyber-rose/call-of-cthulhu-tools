@@ -2,37 +2,11 @@ from investigator_class import Investigator, get_int_input
 
 # the main file for the program
 
-# Print the stats of the investigator generated. Takes an investigator class object
-def print_investigator_stats(investigator):
-    print("Investigator stats for " + investigator.name + ":")
-    print("Age: ", investigator.age)
-
-    print("STR: ", investigator.strength)
-    print("CON: ", investigator.con)
-    print("SIZ: ", investigator.siz)
-    print("DEX: ", investigator.dex)
-    print("APP: ", investigator.app)
-    print("INT: ", investigator.intelligence)
-    print("POW: ", investigator.power)
-    print("EDU: ", investigator.edu)
-
-    print("Luck: ", investigator.luck)
-    print("Sanity: ", investigator.get_sanity_points())
-
-    # print("Move Rate: ", investigator.get_move_rate())
-    # print("Hit Points: ", investigator.get_hit_points())
-    # print("Magic Points: ", investigator.get_magic_points())
-
-    # print("Damage Bonus: " + investigator.get_damage_bonus())
-    # print("Build: ", investigator.get_build())
-    return
-
 # Generate the base characteristics for investigators (using user given dice rolls)
 def gen_base_stats_menu():
     print("You have chosen to generate the characteristics for your investigator. This will lead you through the steps to create an investigator based on the 7th edition rules.")
     print("Before beginning please choose the method you would like to use to create your investigator.")
     #print("After you make your characteristic rolls, you will have an option to select additional methods or house rules to create your character. This includes: options to scrap all base stat rolls and start over, modify low rolls, or adding an extra 1D10 percentage points to distribute among characteristics.") 
-    # TODO: add option to let users select where to put rolled characteristics?
     print("What method would you like to use to generate investigator characteristics?\n    1. Default\n    2. Point Buy Characteristics\n    3. Quick Fire Method")
     gen_method = input("Method: ")
     while (gen_method != 'q') and (gen_method != '1') and (gen_method != '2') and (gen_method != '3'):
@@ -41,8 +15,6 @@ def gen_base_stats_menu():
     if (gen_method == 'q'):
         input("Press enter to return to main menu")
         return
-
-    # Get base characteristic values to build investigator, based on user's choice
 
     # Store base characteristic values in a dict before creating a character
     base_characteristics = {
@@ -63,7 +35,7 @@ def gen_base_stats_menu():
         default_char_method(base_characteristics)
 
     elif (gen_method == '2'):
-        point_buy_char()
+        point_buy_char(base_characteristics)
     else:
         quick_fire_char()
 
@@ -106,7 +78,7 @@ def gen_base_stats_menu():
         if luck_score_2 > luck_score:
             player_char.set_luck(luck_score_2)
 
-    print_investigator_stats(player_char)
+    print(player_char)
     # generate the half and fifth values (?)
     # get occupation?
     # allocate edu points for skills?
@@ -115,7 +87,7 @@ def gen_base_stats_menu():
     return
 
 # Default method to generate characteristics. Gets user input and returns a dictionary for investigator base stats
-# Takes a dictionary and modifys that dictionary on return
+# Takes a dictionary and modifies that dictionary on return
 def default_char_method(base_characteristics):
     print("Strength Characteristic")
     str_roll = get_int_input(3, 18, "STR - Roll 3D6 to generate STR value: ")
@@ -133,7 +105,7 @@ def default_char_method(base_characteristics):
     app_roll = get_int_input(3, 18, "APP - Roll 3D6 to generate APP value: ")
     base_characteristics["app"] = app_roll * 5
 
-    print("Appearance Characteristic")
+    print("Power Characteristic")
     pow_roll = get_int_input(3, 18, "POW - Roll 3D6 to generate POW value: ")
     base_characteristics["pow"] = pow_roll * 5
 
@@ -145,17 +117,63 @@ def default_char_method(base_characteristics):
     int_roll = 6 + get_int_input(2, 12, "INT - Roll 2D6 to generate INT value: ")
     base_characteristics["int"] = int_roll * 5
 
-    print("Education Characteristic") # Recommended minimum value: 40
+    print("Education Characteristic")
     edu_roll = 6 + get_int_input(2, 12, "EDU - Roll 2D6 to generate EDU value: ")
     base_characteristics["edu"] = edu_roll * 5
 
 
 # Returns a dictionary for investigator base stats
-def point_buy_char():
+def point_buy_char(base_characteristics):
     print("Point Buy Characteristics selected.")
     print("\nYou have 460 points to split among the characteristics as you desire, within the range of 15 to 90.")
     print("It is recommended that INT and SIZ be no lower than 40.")
-    return
+
+    points = 460
+    is_valid_split = False # Points must be split so each characteristic is within the range of 15 to 90
+    while (not is_valid_split):
+        print(f"---CURRENT STATS---\nSTR: {base_characteristics["str"]}\nCon: {base_characteristics["con"]}\nSIZ: {base_characteristics["siz"]}\nDEX: {base_characteristics["dex"]}\nAPP: {base_characteristics["app"]}\nINT: {base_characteristics["int"]}\nPOW: {base_characteristics["pow"]}\nEDU: {base_characteristics["edu"]}")
+        
+        # modify points left (add OR remove points from characteristic to put in another category)
+        characteristic_choice = input("Modify characteristic (STR, CON, SIZ, DEX, APP, INT, POW, or EDU): ")
+        points_choice = 0 # Amount to modify characteristics by
+        if (characteristic_choice.lower() == 'str'):
+            points_choice = get_int_input(-base_characteristics["str"], points, "STR - Modify characteristic: ")
+            base_characteristics["str"] += points_choice
+        elif (characteristic_choice.lower() == 'con'):
+            points_choice = get_int_input(-base_characteristics["con"], points,"CON - Modify characteristic: ")
+            base_characteristics["con"] += points_choice
+        elif (characteristic_choice.lower() == 'siz'):
+            points_choice = get_int_input(-base_characteristics["siz"], points,"SIZ - Modify characteristic: ")
+            base_characteristics["siz"] += points_choice
+        elif (characteristic_choice.lower() == 'dex'):
+            points_choice = get_int_input(-base_characteristics["dex"], points,"DEX - Modify characteristic: ")
+            base_characteristics["dex"] += points_choice
+        elif (characteristic_choice.lower() == 'app'):
+            points_choice = get_int_input(-base_characteristics["app"], points,"APP - Modify characteristic: ")
+            base_characteristics["app"] += points_choice
+        elif (characteristic_choice.lower() == 'int'):
+            points_choice = get_int_input(-base_characteristics["int"], points,"INT - Modify characteristic: ")
+            base_characteristics["int"] += points_choice
+        elif (characteristic_choice.lower() == 'pow'):
+            points_choice = get_int_input(-base_characteristics["pow"], points,"POW - Modify characteristic: ")
+            base_characteristics["pow"] += points_choice
+        elif (characteristic_choice.lower() == 'edu'):
+            points_choice = get_int_input(-base_characteristics["edu"], points,"EDU - Modify characteristic: ")
+            base_characteristics["edu"] += points_choice
+        else:
+            print("Invalid choice. Please input a characteristic abbreviation (STR, CON, SIZ, DEX, APP, INT, POW, or EDU).")
+
+        points -= points_choice
+        print("You have", points,"left to spend.")
+
+        # Confirm validity of investigator's base characteristics
+        if (points == 0):
+            if (15 <= base_characteristics["str"] <=90) and (15 <= base_characteristics["con"] <=90) and (15 <= base_characteristics["siz"] <=90) and (15 <= base_characteristics["dex"] <=90) and (15 <= base_characteristics["app"] <=90) and (15 <= base_characteristics["int"] <=90) and (15 <= base_characteristics["pow"] <=90) and (15 <= base_characteristics["edu"] <=90):
+                is_valid_split = True
+            else:
+                print("Characteristic values must be within the range of 15 to 90. Please reallocate characteristic points.")
+
+    return base_characteristics
 
 def quick_fire_char():
     print("Quick fire method selected.")
@@ -163,7 +181,7 @@ def quick_fire_char():
 
 # generate the half and fifth Characteristic values. This is used to determine the values for Hard and Extreme rolls
 def gen_half_and_fifth():
-    print("Not available at the moment")
+    print("Not available.")
     
     input("Press enter to return to main menu")
     return
